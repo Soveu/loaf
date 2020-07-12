@@ -3,10 +3,12 @@ name = "loaf"
 version = "0.1.0"
 authors = ["Soveu <marx.tomasz@gmail.com>"]
 edition = "2018"
+
 description = "Why have a slice when you can have a loaf?"
 keywords = ["slice", "no_std", "no-std", "array"]
 categories = ["data-structures", "no-std"]
 repository = "https://github.com/Soveu/loaf"
+license = "MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

@@ -1,16 +1,7 @@
-/* TODO */
-//#![no_std]
-//#![feature(const_generics)]
+use core::{slice, ptr};
 
-use core::{mem, slice, ptr};
-
-/* split_first depends on it, please don't touch! */
-const N: usize = 1;
-
-#[derive(Debug)]
-#[repr(C)]
 pub struct Loaf<T> {
-    pub some: [T; N],
+    pub some: [T; 1],
     pub rest: [T],
 }
 
@@ -20,9 +11,7 @@ impl<T> Loaf<T> {
         self.some.len() + self.rest.len()
     }
 
-    /* Thanks that array[0] does not compile when array is [T; 0],
-     * this part can be 100% safe
-     * Using bracket syntax on arrays has the same performance 
+    /* Using bracket syntax on arrays has the same performance 
      * as using get_unchecked()
      */
     pub fn first(&self) -> &T {
@@ -34,47 +23,47 @@ impl<T> Loaf<T> {
     pub fn last(&self) -> &T {
         match self.rest.last() {
             Some(x) => x,
-            None    => &self.some[N-1],
+            None    => &self.some[0],
         }
     }
     pub fn last_mut(&mut self) -> &mut T {
         match self.rest.last_mut() {
             Some(x) => x,
-            None    => &mut self.some[N-1],
+            None    => &mut self.some[0],
         }
     }
-
-    /* NOTE: this works only for N = 1 */
     pub fn split_first(&self) -> (&T, &[T]) {
-        assert!(N == 1);
         (&self.some[0], &self.rest)
     }
     pub fn split_first_mut(&mut self) -> (&mut T, &mut [T]) {
-        assert!(N == 1);
         (&mut self.some[0], &mut self.rest)
     }
 }
 
 /* Slice unsafe code */
 impl<T> Loaf<T> {
-    pub fn from_slice<'a>(slice: &'a [T]) -> Option<&'a Loaf<T>> {
-        let len = match slice.len().checked_sub(N) {
+    pub fn from_slice(slice: &[T]) -> Option<&Loaf<T>> {
+        let len = match slice.len().checked_sub(1) {
             Some(x) => x,
             None    => return None,
         };
         let ptr = slice.as_ptr();
+        let loaf = ptr::slice_from_raw_parts(ptr, len) as *const Loaf<T>;
+        let loaf = unsafe { &*loaf };
 
-        unsafe { mem::transmute(slice::from_raw_parts(ptr, len)) }
+        return Some(loaf);
     }
 
-    pub fn from_slice_mut<'a>(slice: &'a mut [T]) -> Option<&'a mut Loaf<T>> {
-        let len = match slice.len().checked_sub(N) {
+    pub fn from_slice_mut(slice: &mut [T]) -> Option<&mut Loaf<T>> {
+        let len = match slice.len().checked_sub(1) {
             Some(x) => x,
             None    => return None,
         };
         let ptr = slice.as_mut_ptr();
+        let loaf = ptr::slice_from_raw_parts_mut(ptr, len) as *mut Loaf<T>;
+        let loaf = unsafe { &mut *loaf };
 
-        unsafe { mem::transmute(slice::from_raw_parts_mut(ptr, len)) }
+        return Some(loaf);
     }
 
     pub fn as_slice(&self) -> &[T] {
@@ -93,7 +82,7 @@ impl<T> Loaf<T> {
 /* Boxed slice unsafe code */
 impl<T> Loaf<T> {
     pub fn try_from_boxed_slice(boxed: Box<[T]>) -> Result<Box<Loaf<T>>, Box<[T]>> {
-        let len = match boxed.len().checked_sub(N) {
+        let len = match boxed.len().checked_sub(1) {
             Some(x) => x,
             None    => return Err(boxed),
         };
@@ -101,7 +90,7 @@ impl<T> Loaf<T> {
         let ptr = Box::into_raw(boxed) as *mut T;
         let fatptr = ptr::slice_from_raw_parts_mut(ptr, len);
 
-        let result: Box<Loaf<T>> = unsafe { mem::transmute(Box::from_raw(fatptr)) };
+        let result = unsafe { Box::from_raw(fatptr as *mut Loaf<T>) };
         return Ok(result);
     }
 
@@ -120,9 +109,15 @@ mod tests {
 
     #[test]
     fn one() {
-        let array: &[u8] = &[1, 2, 3, 4];
-        let loaf: &Loaf<u8> = Loaf::from_slice(array).unwrap();
+        let slice: &[u8] = &[1, 2, 3, 4];
+        let loaf: &Loaf<u8> = Loaf::from_slice(slice).unwrap();
         assert_eq!(*loaf.first(), 1);
+    }
+
+    #[test]
+    fn two() {
+        let slice: &[u8] = &[];
+        assert!(Loaf::from_slice(slice).is_none());
     }
 }
 

@@ -25,6 +25,7 @@
 //! be at the end of struct.
 
 #[cfg(feature = "alloc")]
+#[doc(hidden)]
 pub extern crate alloc;
 
 #[cfg_attr(feature = "nightly", path = "loaf_nightly.rs")]

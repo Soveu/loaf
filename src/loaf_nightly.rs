@@ -1,5 +1,6 @@
 use core::{slice, ptr};
 
+#[doc(hidden)]
 pub type Loaf<T> = LoafN<T, 1>;
 
 /* (1.46 nightly) Currently it is not possible to define default value for N */

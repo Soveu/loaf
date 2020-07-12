@@ -9,7 +9,7 @@
 //! but Rust forces you to do "last minute decision" by `unwrap()`ing `Option`
 //! from for example `first()` for `split_first()` methods.
 //!
-//! `Loaf` guarantees to have at least one element by its definition.
+//! [Loaf] guarantees to have at least one element by its definition.
 //! 
 //! ## Safety
 //! Currently unsafe code is only used to cast between `[T]` and `Loaf<T>` pointers.
@@ -28,8 +28,14 @@
 #[doc(hidden)]
 pub extern crate alloc;
 
-#[cfg_attr(feature = "nightly", path = "loaf_nightly.rs")]
+#[cfg_attr(all(feature = "nightly", not(doc)), path = "loaf_nightly.rs")]
 mod loaf;
 
 pub use crate::loaf::*;
+
+#[cfg(doc)]
+mod loaf_nightly;
+
+#[cfg(doc)]
+pub use loaf_nightly::*;
 

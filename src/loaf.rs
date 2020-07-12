@@ -1,5 +1,6 @@
 use core::{slice, ptr};
 
+/// Slice that guarantees to have at least one element
 #[repr(C)] /* Just to be sure */
 pub struct Loaf<T> {
     pub loaf: [T; 1],

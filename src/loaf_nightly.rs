@@ -1,8 +1,10 @@
 use core::{slice, ptr};
 
-#[doc(hidden)]
+#[cfg(not(doc))]
 pub type Loaf<T> = LoafN<T, 1>;
 
+/// Generally the same as [Loaf](super::Loaf), but guarantees at least N 
+/// elements (implemented with const generics, so it is only avaliable on nightly)
 /* (1.46 nightly) Currently it is not possible to define default value for N */
 #[repr(C)] /* Just to be sure */
 pub struct LoafN<T, const N: usize> {
@@ -94,11 +96,11 @@ impl<T, const N: usize> LoafN<T, N> {
         unsafe { &mut *Self::from_raw_parts_mut(ptr, len) }
     }
 
-    pub fn as_smallest_loaf(&self) -> &Loaf<T> {
-        unsafe { Loaf::from_slice_unchecked(self.as_slice()) }
+    pub fn as_smallest_loaf(&self) -> &LoafN<T, 1> {
+        unsafe { Self::from_slice_unchecked(self.as_slice()) }
     }
-    pub fn as_smallest_loaf_mut(&mut self) -> &mut Loaf<T> {
-        unsafe { Loaf::from_mut_slice_unchecked(self.as_mut_slice()) }
+    pub fn as_smallest_loaf_mut(&mut self) -> &mut LoafN<T, 1> {
+        unsafe { Self::from_mut_slice_unchecked(self.as_mut_slice()) }
     }
 
     pub fn split_first(&self) -> (&T, &[T]) {

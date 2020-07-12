@@ -1,6 +1,6 @@
 [package]
 name = "loaf"
-version = "0.1.0"
+version = "0.1.0-alpha1"
 authors = ["Soveu <marx.tomasz@gmail.com>"]
 edition = "2018"
 

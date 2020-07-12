@@ -1,46 +1,68 @@
+//! Why have a slice when you can have a loaf?
+//!
+//! ## What this is
+//! Sometimes you know that a slice _must_ have at least one element in it,
+//! but Rust forces you to do "last minute decision" by `unwrap()`ing `Option`
+//! from for example `first()` for `split_first()` methods.
+//!
+//! `Loaf` guarantees to have at least one element by its definition.
+//! 
+//! ## Safety
+//! Currently unsafe code is only used to cast between `[T]` and `Loaf<T>` pointers.
+//!
+//! Rust's pointers to unsized types consist of two elements: pointer to data and 
+//! length of the unsized part \
+//! So a fat pointer to `[T]` has a pointer to the beginning of buffer and its length \
+//! `Loaf` has an one element array of `T` _and_ `[T]` and because of it when casting
+//! from slice pointer, the pointer is kept, but the length is decremented
+//! (remember, fat pointer keeps length of the __unsized part__)
+//!
+//! The one element array is guaranteed to be first, because unsized types must
+//! be at the end of struct.
+
 use core::{slice, ptr};
 
 pub struct Loaf<T> {
-    pub some: [T; 1],
+    pub loaf: [T; 1],
     pub rest: [T],
 }
 
-/* Basics */
 impl<T> Loaf<T> {
     pub fn len(&self) -> usize {
-        self.some.len() + self.rest.len()
+        self.loaf.len() + self.rest.len()
     }
 
     /* Using bracket syntax on arrays has the same performance 
-     * as using get_unchecked()
+     * as using get_unchecked(), plus code does not compile when
+     * array has length of zero (can be useful with const generics)
      */
     pub fn first(&self) -> &T {
-        &self.some[0]
+        &self.loaf[0]
     }
     pub fn first_mut(&mut self) -> &mut T {
-        &mut self.some[0]
+        &mut self.loaf[0]
     }
     pub fn last(&self) -> &T {
         match self.rest.last() {
             Some(x) => x,
-            None    => &self.some[0],
+            None    => &self.loaf[0],
         }
     }
     pub fn last_mut(&mut self) -> &mut T {
         match self.rest.last_mut() {
             Some(x) => x,
-            None    => &mut self.some[0],
+            None    => &mut self.loaf[0],
         }
     }
     pub fn split_first(&self) -> (&T, &[T]) {
-        (&self.some[0], &self.rest)
+        (&self.loaf[0], &self.rest)
     }
     pub fn split_first_mut(&mut self) -> (&mut T, &mut [T]) {
-        (&mut self.some[0], &mut self.rest)
+        (&mut self.loaf[0], &mut self.rest)
     }
 }
 
-/* Slice unsafe code */
+/* Unsafe code */
 impl<T> Loaf<T> {
     pub fn from_slice(slice: &[T]) -> Option<&Loaf<T>> {
         let len = match slice.len().checked_sub(1) {
@@ -77,10 +99,7 @@ impl<T> Loaf<T> {
         let ptr = self as *mut Loaf<T> as *mut T;
         unsafe { slice::from_raw_parts_mut(ptr, len) }
     }
-}
 
-/* Boxed slice unsafe code */
-impl<T> Loaf<T> {
     pub fn try_from_boxed_slice(boxed: Box<[T]>) -> Result<Box<Loaf<T>>, Box<[T]>> {
         let len = match boxed.len().checked_sub(1) {
             Some(x) => x,

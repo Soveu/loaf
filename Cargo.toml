@@ -23,14 +23,11 @@ nightly = []
 # to enable Box stuff and (maybe) Vec in future
 alloc   = []
 
-[[test]]
-name = "loaf_alloc"
-required-features = ["alloc"]
+#[[test]]
+#name = "loaf_alloc"
+#required-features = ["alloc"]
 
 [profile.test]
 # Be sure that every UB is catched
 opt-level = 3
-
-[package.metadata.docs.rs]
-all-features = true
 

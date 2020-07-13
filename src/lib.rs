@@ -1,6 +1,6 @@
 #![no_std]
-#![cfg_attr(feature = "nightly", feature(const_generics))]
-#![cfg_attr(feature = "nightly", allow(incomplete_features))]
+#![cfg_attr(any(feature = "nightly", doc), feature(const_generics))]
+#![cfg_attr(any(feature = "nightly", doc), allow(incomplete_features))]
 
 //! Why have a slice when you can have a loaf?
 //!
@@ -11,31 +11,76 @@
 //!
 //! [Loaf] guarantees to have at least one element by its definition.
 //! 
+//! ## How it works
+//! First, lets consider a simple slice
+//!
+//! ```
+//! let x: &[u8] = &[10, 42, 0, 7, 91];
+//! ```
+//!
+//! `&[u8]` underneath is really just a pair of a pointer to buffer and its length
+//! (a fat pointer)
+//!
+//! ```text
+//! [ ptr: *const u8 | len: usize = 5 ]
+//!    |                |
+//!    |                v       
+//!    |    | <-       [u8]       -> |
+//!    |    +----+----+----+----+----+
+//!    +--->| 10 | 42 | 00 | 07 | 91 |
+//!         +----+----+----+----+----+
+//! ```
+//!
+//! Thats because size of `[u8]` can be known only at runtime.
+//!
+//! Rust also allows to define a structure that has exactly one dynamically-sized
+//! type at the end of it. 
+//!
+//! ```
+//! struct LoafN<u8, 2> {
+//!     loaf: [u8; 2],
+//!     rest: [u8],
+//! }
+//! ```
+//!
+//! ```
+//! let x: &[u8] = &[10, 42, 0, 7, 91];
+//! let loaf: &LoafN<u8, 2> = abracadabra!(slice);
+//! ```
+//!
+//! In this case the `len` also contains the length of `[u8]`
+//!
+//! ```text
+//! [ ptr: *const ?? | len: usize = 3 ]
+//!    |                     |
+//!    |                     v       
+//!    |    | [u8; 2] | <-  [u8]  -> |
+//!    |    +----+----+----+----+----+
+//!    +--->| 10 | 42 | 00 | 07 | 91 |
+//!         +----+----+----+----+----+
+//! ```
+//!
+//! `ptr` doesn't have here a clear type, because `*const LoafN<u8, 2>` is 
+//! itself a fat pointer (because of the `[u8]` field).
+//!
+//! ## The Hack
+//! Rust does have a way to fiddle with fat pointer internals, but it 
+//! requires untagged unions, which are only avaliable on nightly.\
+//! The hack here to create an `*mut [T]` as it was `*mut Loaf<T>` and then cast it
+//!
+//! See [Loaf::from_slice] source for more details
+//!
 //! ## Safety
-//! Currently unsafe code is only used to cast between `[T]` and `Loaf<T>` pointers.
-//!
-//! Rust's pointers to unsized types consist of two elements: pointer to data and 
-//! length of the unsized part \
-//! So a fat pointer to `[T]` has a pointer to the beginning of buffer and its length \
-//! `Loaf` has an one element array of `T` _and_ `[T]` and because of it when casting
-//! from slice pointer, the pointer is kept, but the length is decremented
-//! (remember, fat pointer keeps length of the __unsized part__)
-//!
-//! The one element array is guaranteed to be first, because unsized types must
-//! be at the end of struct.
+//! As long as two arrays could be interpreted as one bigger and vice versa,
+//! everything should be alright
 
-#[cfg(feature = "alloc")]
-#[doc(hidden)]
-pub extern crate alloc;
-
-#[cfg_attr(all(feature = "nightly", not(doc)), path = "loaf_nightly.rs")]
+#[cfg(not(feature = "nightly"))]
 mod loaf;
-
+#[cfg(not(feature = "nightly"))]
 pub use crate::loaf::*;
 
-#[cfg(doc)]
+#[cfg(any(feature = "nightly", doc))]
 mod loaf_nightly;
-
-#[cfg(doc)]
-pub use loaf_nightly::*;
+#[cfg(any(feature = "nightly", doc))]
+pub use crate::loaf_nightly::*;
 

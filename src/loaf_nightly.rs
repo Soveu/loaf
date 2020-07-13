@@ -60,7 +60,7 @@ impl<T, const N: usize> LoafN<T, N> {
         return Some(loaf);
     }
 
-    pub fn from_mut_slice(slice: &mut [T]) -> Option<&mut Self> {
+    pub fn from_slice_mut(slice: &mut [T]) -> Option<&mut Self> {
         let len = match slice.len().checked_sub(N) {
             Some(x) => x,
             None    => return None,
@@ -89,7 +89,7 @@ impl<T, const N: usize> LoafN<T, N> {
         #[allow(unused_unsafe)]
         unsafe { &*Self::from_raw_parts(ptr, len) }
     }
-    pub unsafe fn from_mut_slice_unchecked(slice: &mut [T]) -> &mut Self {
+    pub unsafe fn from_slice_mut_unchecked(slice: &mut [T]) -> &mut Self {
         let len = slice.len() - N;
         let ptr = slice.as_mut_ptr();
         #[allow(unused_unsafe)]
@@ -97,10 +97,10 @@ impl<T, const N: usize> LoafN<T, N> {
     }
 
     pub fn as_smallest_loaf(&self) -> &LoafN<T, 1> {
-        unsafe { Self::from_slice_unchecked(self.as_slice()) }
+        unsafe { LoafN::<T, 1>::from_slice_unchecked(self.as_slice()) }
     }
     pub fn as_smallest_loaf_mut(&mut self) -> &mut LoafN<T, 1> {
-        unsafe { Self::from_mut_slice_unchecked(self.as_mut_slice()) }
+        unsafe { LoafN::<T, 1>::from_slice_mut_unchecked(self.as_mut_slice()) }
     }
 
     pub fn split_first(&self) -> (&T, &[T]) {
@@ -113,10 +113,14 @@ impl<T, const N: usize> LoafN<T, N> {
     }
 }
 
-#[cfg(feature = "alloc")]
-use super::alloc::boxed::Box;
+#[cfg(any(feature = "alloc", doc))]
+#[doc(hidden)]
+extern crate alloc;
 
-#[cfg(feature = "alloc")]
+#[cfg(any(feature = "alloc", doc))]
+use alloc::boxed::Box;
+
+#[cfg(any(feature = "alloc", doc))]
 impl<T, const N: usize> LoafN<T, N> {
     pub fn try_from_boxed_slice(boxed: Box<[T]>) -> Result<Box<Self>, Box<[T]>> {
         let len = match boxed.len().checked_sub(1) {

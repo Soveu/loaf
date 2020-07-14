@@ -36,14 +36,14 @@
 //! Rust also allows to define a structure that has exactly one dynamically-sized
 //! type at the end of it. 
 //!
-//! ```
-//! struct LoafN<u8, 2> {
+//! ```text
+//! struct LoafT<u8, 2> {
 //!     loaf: [u8; 2],
 //!     rest: [u8],
 //! }
 //! ```
 //!
-//! ```
+//! ```compile_fail
 //! let x: &[u8] = &[10, 42, 0, 7, 91];
 //! let loaf: &LoafN<u8, 2> = abracadabra!(slice);
 //! ```
@@ -68,19 +68,17 @@
 //! requires untagged unions, which are only avaliable on nightly.\
 //! The hack here to create an `*mut [T]` as it was `*mut Loaf<T>` and then cast it
 //!
-//! See [Loaf::from_slice] source for more details
+//! See [Loaf::from_slice] source code for more details
 //!
 //! ## Safety
 //! As long as two arrays could be interpreted as one bigger and vice versa,
 //! everything should be alright
 
-#[cfg(not(feature = "nightly"))]
 mod loaf;
-#[cfg(not(feature = "nightly"))]
 pub use crate::loaf::*;
 
-#[cfg(any(feature = "nightly", doc))]
+#[cfg(feature = "nightly")]
 mod loaf_nightly;
-#[cfg(any(feature = "nightly", doc))]
+#[cfg(feature = "nightly")]
 pub use crate::loaf_nightly::*;
 

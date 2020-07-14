@@ -1,6 +1,6 @@
 [package]
 name = "loaf"
-version = "0.1.0-alpha3"
+version = "0.1.0-alpha4"
 authors = ["Soveu <marx.tomasz@gmail.com>"]
 edition = "2018"
 
@@ -30,4 +30,7 @@ alloc   = []
 [profile.test]
 # Be sure that every UB is catched
 opt-level = 3
+
+[package.metadata.docs.rs]
+all-features = true
 

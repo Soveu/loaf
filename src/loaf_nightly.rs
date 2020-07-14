@@ -1,7 +1,6 @@
 use core::{slice, ptr};
 
-#[cfg(not(doc))]
-pub type Loaf<T> = LoafN<T, 1>;
+//pub type Loaf<T> = LoafN<T, 1>;
 
 /// Generally the same as [Loaf](super::Loaf), but guarantees at least N 
 /// elements (implemented with const generics, so it is only avaliable on nightly)
@@ -113,14 +112,14 @@ impl<T, const N: usize> LoafN<T, N> {
     }
 }
 
-#[cfg(any(feature = "alloc", doc))]
+#[cfg(feature = "alloc")]
 #[doc(hidden)]
 extern crate alloc;
 
-#[cfg(any(feature = "alloc", doc))]
+#[cfg(feature = "alloc")]
 use alloc::boxed::Box;
 
-#[cfg(any(feature = "alloc", doc))]
+#[cfg(feature = "alloc")]
 impl<T, const N: usize> LoafN<T, N> {
     pub fn try_from_boxed_slice(boxed: Box<[T]>) -> Result<Box<Self>, Box<[T]>> {
         let len = match boxed.len().checked_sub(1) {

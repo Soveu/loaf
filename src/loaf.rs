@@ -4,7 +4,8 @@ use core::{slice, ptr};
 /// # Usage
 /// The implementation is very minimal, it only contains things that have reason 
 /// to be here. If you want to use slice iterators or other slice methods,
-/// consider using them indirectly via [Loaf::as_slice] or [Loaf::as_mut_slice]
+/// consider using them indirectly via [as_slice](Loaf::as_slice) or 
+/// [as_mut_slice](Loaf::as_mut_slice)
 #[repr(C)] /* Just to be sure */
 pub struct Loaf<T> {
     pub loaf: [T; 1],

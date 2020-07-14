@@ -4,6 +4,10 @@ use core::{slice, ptr};
 
 /// Generally the same as [Loaf](super::Loaf), but guarantees at least N 
 /// elements (implemented with const generics, so it is only avaliable on nightly)
+///
+/// Currently there is no documentation, but functions work the same way as in
+/// [Loaf](super::Loaf)
+///
 /* (1.46 nightly) Currently it is not possible to define default value for N */
 #[repr(C)] /* Just to be sure */
 pub struct LoafN<T, const N: usize> {

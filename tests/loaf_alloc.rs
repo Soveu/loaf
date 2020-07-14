@@ -1,6 +1,8 @@
 #![cfg(feature = "alloc")]
 
-use loaf::{Loaf, alloc::boxed::Box};
+use loaf::Loaf;
+extern crate alloc;
+use alloc::boxed::Box;
 
 #[test]
 fn one() {

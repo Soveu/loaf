@@ -1,10 +1,13 @@
 use core::{slice, ptr};
 
-#[cfg(not(doc))]
-pub type Loaf<T> = LoafN<T, 1>;
+//pub type Loaf<T> = LoafN<T, 1>;
 
 /// Generally the same as [Loaf](super::Loaf), but guarantees at least N 
 /// elements (implemented with const generics, so it is only avaliable on nightly)
+///
+/// Currently there is no documentation, but functions work the same way as in
+/// [Loaf](super::Loaf)
+///
 /* (1.46 nightly) Currently it is not possible to define default value for N */
 #[repr(C)] /* Just to be sure */
 pub struct LoafN<T, const N: usize> {
@@ -60,7 +63,7 @@ impl<T, const N: usize> LoafN<T, N> {
         return Some(loaf);
     }
 
-    pub fn from_mut_slice(slice: &mut [T]) -> Option<&mut Self> {
+    pub fn from_slice_mut(slice: &mut [T]) -> Option<&mut Self> {
         let len = match slice.len().checked_sub(N) {
             Some(x) => x,
             None    => return None,
@@ -89,7 +92,7 @@ impl<T, const N: usize> LoafN<T, N> {
         #[allow(unused_unsafe)]
         unsafe { &*Self::from_raw_parts(ptr, len) }
     }
-    pub unsafe fn from_mut_slice_unchecked(slice: &mut [T]) -> &mut Self {
+    pub unsafe fn from_slice_mut_unchecked(slice: &mut [T]) -> &mut Self {
         let len = slice.len() - N;
         let ptr = slice.as_mut_ptr();
         #[allow(unused_unsafe)]
@@ -97,10 +100,10 @@ impl<T, const N: usize> LoafN<T, N> {
     }
 
     pub fn as_smallest_loaf(&self) -> &LoafN<T, 1> {
-        unsafe { Self::from_slice_unchecked(self.as_slice()) }
+        unsafe { LoafN::<T, 1>::from_slice_unchecked(self.as_slice()) }
     }
     pub fn as_smallest_loaf_mut(&mut self) -> &mut LoafN<T, 1> {
-        unsafe { Self::from_mut_slice_unchecked(self.as_mut_slice()) }
+        unsafe { LoafN::<T, 1>::from_slice_mut_unchecked(self.as_mut_slice()) }
     }
 
     pub fn split_first(&self) -> (&T, &[T]) {
@@ -114,7 +117,11 @@ impl<T, const N: usize> LoafN<T, N> {
 }
 
 #[cfg(feature = "alloc")]
-use super::alloc::boxed::Box;
+#[doc(hidden)]
+extern crate alloc;
+
+#[cfg(feature = "alloc")]
+use alloc::boxed::Box;
 
 #[cfg(feature = "alloc")]
 impl<T, const N: usize> LoafN<T, N> {

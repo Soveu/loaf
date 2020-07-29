@@ -208,11 +208,7 @@ impl<T> Loaf<T> {
 }
 
 #[cfg(feature = "alloc")]
-#[doc(hidden)]
-extern crate alloc;
-
-#[cfg(feature = "alloc")]
-use alloc::boxed::Box;
+use super::alloc::boxed::Box;
 
 #[cfg(feature = "alloc")]
 /// Avaliable with `alloc` feature

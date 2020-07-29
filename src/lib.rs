@@ -74,6 +74,10 @@
 //! As long as two arrays could be interpreted as one bigger and vice versa,
 //! everything should be alright
 
+#[cfg(feature = "alloc")]
+#[doc(hidden)]
+pub(crate) extern crate alloc;
+
 mod loaf;
 pub use crate::loaf::*;
 
@@ -82,3 +86,5 @@ mod loaf_nightly;
 #[cfg(feature = "nightly")]
 pub use crate::loaf_nightly::*;
 
+#[cfg(feature = "alloc")]
+pub mod loaf_vec;

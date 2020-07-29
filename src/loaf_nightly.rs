@@ -117,11 +117,7 @@ impl<T, const N: usize> LoafN<T, N> {
 }
 
 #[cfg(feature = "alloc")]
-#[doc(hidden)]
-extern crate alloc;
-
-#[cfg(feature = "alloc")]
-use alloc::boxed::Box;
+use super::alloc::boxed::Box;
 
 #[cfg(feature = "alloc")]
 impl<T, const N: usize> LoafN<T, N> {

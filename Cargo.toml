@@ -1,6 +1,6 @@
 [package]
 name = "loaf"
-version = "0.1.0-alpha4"
+version = "0.1.0-alpha5"
 authors = ["Soveu <marx.tomasz@gmail.com>"]
 edition = "2018"
 
@@ -20,7 +20,7 @@ default = []
 # for const generics
 nightly = []
 
-# to enable Box stuff and (maybe) Vec in future
+# to enable Box and Vec stuff
 alloc   = []
 
 #[[test]]

@@ -1,4 +1,5 @@
 use core::{slice, ptr};
+use core::ops::{Deref, DerefMut};
 
 /// Slice that guarantees to have at least one element
 /// # Usage
@@ -223,7 +224,10 @@ impl<T> Loaf<T> {
     /// assert_eq!(loaf.rest, [2u8, 3]);
     ///
     /// let x: Box<[u8]> = Box::new([]);
-    /// let b: Box<[u8]> = Loaf::try_from_boxed_slice(x).unwrap_err();
+    /// let b: Box<[u8]> = match Loaf::try_from_boxed_slice(x) {
+    ///     Ok(_) => unreachable!(),
+    ///     Err(b) => b,
+    /// };
     /// ```
     pub fn try_from_boxed_slice(boxed: Box<[T]>) -> Result<Box<Self>, Box<[T]>> {
         let len = match boxed.len().checked_sub(1) {
@@ -256,13 +260,16 @@ impl<T> Loaf<T> {
     }
 }
 
-use core::fmt::{self, Debug};
+impl<T> Deref for Loaf<T> {
+    type Target = [T];
+    fn deref(&self) -> &Self::Target {
+        self.as_slice()
+    }
+}
 
-impl<T: Debug> Debug for Loaf<T> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_fmt(
-            format_args!("{{ loaf: {:?}, rest: {:?} }}", 
-                &self.loaf, &self.rest))
+impl<T> DerefMut for Loaf<T> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        self.as_mut_slice()
     }
 }
 

@@ -1,8 +1,11 @@
 #![cfg(feature = "alloc")]
 
-use super::alloc::vec::Vec;
+use super::alloc::{boxed::Box, vec::Vec};
 use crate::Loaf;
+use core::ops::{Deref, DerefMut};
 
+#[derive(Clone)]
+#[repr(transparent)]
 pub struct LoafVec<T> {
     inner: Vec<T>,
 }
@@ -40,6 +43,27 @@ impl<T> LoafVec<T> {
         }
 
         return self.inner.pop();
+    }
+
+    pub fn into_boxed_loaf(self) -> Box<Loaf<T>> {
+        let boxed = self.inner.into_boxed_slice();
+        return match Loaf::try_from_boxed_slice(boxed) {
+            Ok(b) => b,
+            Err(_) => unreachable!(),
+        };
+    }
+}
+
+impl<T> Deref for LoafVec<T> {
+    type Target = Loaf<T>;
+    fn deref(&self) -> &Self::Target {
+        self.as_loaf()
+    }
+}
+
+impl<T> DerefMut for LoafVec<T> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        self.as_mut_loaf()
     }
 }
 

@@ -1,3 +1,5 @@
+#![cfg(feature = "nightly")]
+
 use core::{ptr, slice};
 
 //pub type Loaf<T> = LoafN<T, 1>;
@@ -121,7 +123,7 @@ impl<T, const N: usize> LoafN<T, N> {
 }
 
 #[cfg(feature = "alloc")]
-use super::alloc::boxed::Box;
+use crate::alloc::boxed::Box;
 
 #[cfg(feature = "alloc")]
 impl<T, const N: usize> LoafN<T, N> {

@@ -1,6 +1,12 @@
 use core::ops::{Deref, DerefMut};
 use core::{ptr, slice};
 
+#[cfg(feature = "nightly")]
+#[path = "loaf_nightly.rs"]
+mod nightly;
+#[cfg(feature = "nightly")]
+pub use nightly::*;
+
 /// Slice that guarantees to have at least one element
 /// # Usage
 /// The implementation is very minimal, it only contains things that have reason
@@ -213,7 +219,7 @@ impl<T> Loaf<T> {
 }
 
 #[cfg(feature = "alloc")]
-use super::alloc::boxed::Box;
+use crate::alloc::boxed::Box;
 
 #[cfg(feature = "alloc")]
 /// Avaliable with `alloc` feature

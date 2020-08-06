@@ -81,10 +81,8 @@ pub(crate) extern crate alloc;
 mod loaf;
 pub use crate::loaf::*;
 
-#[cfg(feature = "nightly")]
-mod loaf_nightly;
-#[cfg(feature = "nightly")]
-pub use crate::loaf_nightly::*;
-
 #[cfg(feature = "alloc")]
-pub mod loaf_vec;
+mod vec;
+#[cfg(feature = "alloc")]
+pub use vec::*;
+

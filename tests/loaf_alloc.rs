@@ -1,4 +1,5 @@
 #![cfg(feature = "alloc")]
+#[rustfmt::skip]
 
 use loaf::{Loaf, loaf_vec::LoafVec};
 extern crate alloc;
@@ -31,4 +32,3 @@ fn deref() {
     slice_deref_check(&loafb);
     mut_slice_deref_check(&mut loafb);
 }
-

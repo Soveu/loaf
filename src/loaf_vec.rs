@@ -22,7 +22,7 @@ impl<T> LoafVec<T> {
     pub fn into_vec(self) -> Vec<T> {
         return self.inner;
     }
-    
+
     pub fn as_loaf(&self) -> &Loaf<T> {
         unsafe { Loaf::from_slice_unchecked(&self.inner) }
     }
@@ -66,4 +66,3 @@ impl<T> DerefMut for LoafVec<T> {
         self.as_mut_loaf()
     }
 }
-

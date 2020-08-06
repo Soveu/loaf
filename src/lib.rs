@@ -10,7 +10,7 @@
 //! from for example `first()` for `split_first()` methods.
 //!
 //! [Loaf] guarantees to have at least one element by its definition.
-//! 
+//!
 //! ## How it works
 //! First, lets consider a simple slice
 //!
@@ -34,7 +34,7 @@
 //! Thats because size of `[u8]` can be known only at runtime.
 //!
 //! Rust also allows to define a structure that has exactly one dynamically-sized
-//! type at the end of it. 
+//! type at the end of it.
 //!
 //! ```text
 //! struct LoafT<u8, 2> {
@@ -60,11 +60,11 @@
 //!         +----+----+----+----+----+
 //! ```
 //!
-//! `ptr` doesn't have here a clear type, because `*const LoafN<u8, 2>` is 
+//! `ptr` doesn't have here a clear type, because `*const LoafN<u8, 2>` is
 //! itself a fat pointer (because of the `[u8]` field).
 //!
 //! ## The Hack
-//! Rust does have a way to fiddle with fat pointer internals, but it 
+//! Rust does have a way to fiddle with fat pointer internals, but it
 //! requires untagged unions, which are only avaliable on nightly.\
 //! The hack here to create an `*mut [T]` as it was `*mut Loaf<T>` and then cast it
 //!

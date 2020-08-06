@@ -1,8 +1,8 @@
-use core::{slice, ptr};
+use core::{ptr, slice};
 
 //pub type Loaf<T> = LoafN<T, 1>;
 
-/// Generally the same as [Loaf](super::Loaf), but guarantees at least N 
+/// Generally the same as [Loaf](super::Loaf), but guarantees at least N
 /// elements (implemented with const generics, so it is only avaliable on nightly)
 ///
 /// Currently there is no documentation, but functions work the same way as in
@@ -20,7 +20,7 @@ impl<T, const N: usize> LoafN<T, N> {
         N + self.rest.len()
     }
 
-    /* Using bracket syntax on arrays has the same performance 
+    /* Using bracket syntax on arrays has the same performance
      * as using get_unchecked(), plus code does not compile when
      * array has length of zero (can be useful with const generics)
      */
@@ -33,13 +33,13 @@ impl<T, const N: usize> LoafN<T, N> {
     pub fn last(&self) -> &T {
         match self.rest.last() {
             Some(x) => x,
-            None    => &self.loaf[N-1],
+            None => &self.loaf[N - 1],
         }
     }
     pub fn last_mut(&mut self) -> &mut T {
         match self.rest.last_mut() {
             Some(x) => x,
-            None    => &mut self.loaf[N-1],
+            None => &mut self.loaf[N - 1],
         }
     }
 
@@ -55,7 +55,7 @@ impl<T, const N: usize> LoafN<T, N> {
     pub fn from_slice(slice: &[T]) -> Option<&Self> {
         let len = match slice.len().checked_sub(N) {
             Some(x) => x,
-            None    => return None,
+            None => return None,
         };
         let ptr = slice.as_ptr();
         let loaf = unsafe { &*Self::from_raw_parts(ptr, len) };
@@ -66,7 +66,7 @@ impl<T, const N: usize> LoafN<T, N> {
     pub fn from_slice_mut(slice: &mut [T]) -> Option<&mut Self> {
         let len = match slice.len().checked_sub(N) {
             Some(x) => x,
-            None    => return None,
+            None => return None,
         };
         let ptr = slice.as_mut_ptr();
         let loaf = unsafe { &mut *Self::from_raw_parts_mut(ptr, len) };
@@ -90,13 +90,17 @@ impl<T, const N: usize> LoafN<T, N> {
         let len = slice.len() - N;
         let ptr = slice.as_ptr();
         #[allow(unused_unsafe)]
-        unsafe { &*Self::from_raw_parts(ptr, len) }
+        unsafe {
+            &*Self::from_raw_parts(ptr, len)
+        }
     }
     pub unsafe fn from_slice_mut_unchecked(slice: &mut [T]) -> &mut Self {
         let len = slice.len() - N;
         let ptr = slice.as_mut_ptr();
         #[allow(unused_unsafe)]
-        unsafe { &mut *Self::from_raw_parts_mut(ptr, len) }
+        unsafe {
+            &mut *Self::from_raw_parts_mut(ptr, len)
+        }
     }
 
     pub fn as_smallest_loaf(&self) -> &LoafN<T, 1> {
@@ -124,7 +128,7 @@ impl<T, const N: usize> LoafN<T, N> {
     pub fn try_from_boxed_slice(boxed: Box<[T]>) -> Result<Box<Self>, Box<[T]>> {
         let len = match boxed.len().checked_sub(1) {
             Some(x) => x,
-            None    => return Err(boxed),
+            None => return Err(boxed),
         };
 
         let ptr = Box::into_raw(boxed) as *mut T;
@@ -142,4 +146,3 @@ impl<T, const N: usize> LoafN<T, N> {
         unsafe { Box::from_raw(fatptr) }
     }
 }
-

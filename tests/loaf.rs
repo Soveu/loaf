@@ -1,3 +1,4 @@
+#[rustfmt::skip]
 use loaf::Loaf;
 
 #[test]
@@ -26,4 +27,3 @@ fn deref() {
     let loaf: &Loaf<u8> = Loaf::from_slice(&arr).unwrap();
     slice_deref_check(loaf);
 }
-

@@ -1,11 +1,11 @@
-use core::{slice, ptr};
 use core::ops::{Deref, DerefMut};
+use core::{ptr, slice};
 
 /// Slice that guarantees to have at least one element
 /// # Usage
-/// The implementation is very minimal, it only contains things that have reason 
+/// The implementation is very minimal, it only contains things that have reason
 /// to be here. If you want to use slice iterators or other slice methods,
-/// consider using them indirectly via [as_slice](Loaf::as_slice) or 
+/// consider using them indirectly via [as_slice](Loaf::as_slice) or
 /// [as_mut_slice](Loaf::as_mut_slice)
 #[repr(C)] /* Just to be sure */
 pub struct Loaf<T> {
@@ -26,7 +26,7 @@ impl<T> Loaf<T> {
         1 + self.rest.len()
     }
 
-    /* Using bracket syntax on arrays has the same performance 
+    /* Using bracket syntax on arrays has the same performance
      * as using get_unchecked(), plus code does not compile when
      * array has length of zero (can be useful with const generics)
      */
@@ -61,7 +61,7 @@ impl<T> Loaf<T> {
     pub fn last(&self) -> &T {
         match self.rest.last() {
             Some(x) => x,
-            None    => &self.loaf[0],
+            None => &self.loaf[0],
         }
     }
     /// Returns a mutable reference to the last element
@@ -75,7 +75,7 @@ impl<T> Loaf<T> {
     pub fn last_mut(&mut self) -> &mut T {
         match self.rest.last_mut() {
             Some(x) => x,
-            None    => &mut self.loaf[0],
+            None => &mut self.loaf[0],
         }
     }
     /// Returns a reference to the first element and the rest of slice
@@ -131,7 +131,7 @@ impl<T> Loaf<T> {
     pub fn from_slice(slice: &[T]) -> Option<&Self> {
         let len = match slice.len().checked_sub(1) {
             Some(x) => x,
-            None    => return None,
+            None => return None,
         };
         let ptr = slice.as_ptr();
         let loaf = unsafe { &*Self::from_raw_parts(ptr, len) };
@@ -152,7 +152,7 @@ impl<T> Loaf<T> {
     pub fn from_slice_mut(slice: &mut [T]) -> Option<&mut Self> {
         let len = match slice.len().checked_sub(1) {
             Some(x) => x,
-            None    => return None,
+            None => return None,
         };
         let ptr = slice.as_mut_ptr();
         let loaf = unsafe { &mut *Self::from_raw_parts_mut(ptr, len) };
@@ -195,7 +195,9 @@ impl<T> Loaf<T> {
         let len = slice.len() - 1;
         let ptr = slice.as_ptr();
         #[allow(unused_unsafe)]
-        unsafe { &*Self::from_raw_parts(ptr, len) }
+        unsafe {
+            &*Self::from_raw_parts(ptr, len)
+        }
     }
     /// Casts a `&mut [T]` into `&mut Loaf<T>`.
     /// # Safety
@@ -204,7 +206,9 @@ impl<T> Loaf<T> {
         let len = slice.len() - 1;
         let ptr = slice.as_mut_ptr();
         #[allow(unused_unsafe)]
-        unsafe { &mut *Self::from_raw_parts_mut(ptr, len) }
+        unsafe {
+            &mut *Self::from_raw_parts_mut(ptr, len)
+        }
     }
 }
 
@@ -232,7 +236,7 @@ impl<T> Loaf<T> {
     pub fn try_from_boxed_slice(boxed: Box<[T]>) -> Result<Box<Self>, Box<[T]>> {
         let len = match boxed.len().checked_sub(1) {
             Some(x) => x,
-            None    => return Err(boxed),
+            None => return Err(boxed),
         };
 
         let ptr = Box::into_raw(boxed) as *mut T;
@@ -272,4 +276,3 @@ impl<T> DerefMut for Loaf<T> {
         self.as_mut_slice()
     }
 }
-

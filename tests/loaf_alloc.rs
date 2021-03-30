@@ -15,7 +15,7 @@ fn one() {
 #[test]
 fn two() {
     let slice: Box<[u8]> = Box::new([]);
-    assert!(Loaf::try_from_boxed_slice(slice).is_err());
+    assert!(Loaf::<T>::try_from_boxed_slice(slice).is_err());
 }
 
 fn slice_deref_check(_: &[u8]) {}
@@ -24,7 +24,7 @@ fn mut_slice_deref_check(_: &mut [u8]) {}
 #[test]
 fn deref() {
     let v = vec![1u8; 4];
-    let mut loafv = LoafVec::from_vec(v).unwrap();
+    let mut loafv: LoafVec<T> = LoafVec::from_vec(v).unwrap();
     slice_deref_check(&loafv);
     mut_slice_deref_check(&mut loafv);
 

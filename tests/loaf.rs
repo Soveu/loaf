@@ -11,7 +11,7 @@ fn one() {
 #[test]
 fn two() {
     let slice: &[u8] = &[];
-    assert!(Loaf::from_slice(slice).is_none());
+    assert!(Loaf::<u8>::from_slice(slice).is_none());
 }
 
 fn slice_deref_check(_: &[u8]) {}

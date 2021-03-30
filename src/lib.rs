@@ -1,6 +1,9 @@
 #![no_std]
-#![cfg_attr(any(feature = "nightly", doc), feature(const_generics))]
-#![cfg_attr(any(feature = "nightly", doc), allow(incomplete_features))]
+#![feature(const_generics_defaults)]
+//#![cfg_attr(any(feature = "nightly", doc), feature(const_generics_defaults))]
+//#![cfg_attr(any(feature = "nightly", doc), allow(incomplete_features))]
+#![allow(clippy::len_without_is_empty)] // Loaf is never empty, clippy ;)
+#![allow(clippy::needless_return)]
 
 //! Why have a slice when you can have a loaf?
 //!
@@ -85,4 +88,3 @@ pub use crate::loaf::*;
 mod vec;
 #[cfg(feature = "alloc")]
 pub use vec::*;
-

@@ -1,5 +1,6 @@
 use core::ops::{Deref, DerefMut};
 use core::{ptr, slice};
+use core::num::NonZeroUsize;
 
 /// Slice that guarantees to have at least one element
 /// # Usage
@@ -8,7 +9,7 @@ use core::{ptr, slice};
 /// consider using them indirectly via [as_slice](Loaf::as_slice) or
 /// [as_mut_slice](Loaf::as_mut_slice)
 #[repr(C)]
-pub struct Loaf<T, const N: usize> {
+pub struct Loaf<T, const N: usize = 1usize> {
     pub loaf: [T; N],
     pub rest: [T],
 }
@@ -18,20 +19,28 @@ impl<T, const N: usize> Loaf<T, N> {
     /// ```
     /// # use loaf::Loaf;
     /// let slice = &[0u8, 1, 2, 3, 4];
-    /// let loaf = Loaf::from_slice(slice).unwrap();
+    /// let loaf: &Loaf<_> = Loaf::from_slice(slice).unwrap();
     /// assert_eq!(loaf.len(), slice.len());
     /// ```
     #[inline(always)]
     pub fn len(&self) -> usize {
         /* self.loaf.len() == 1 */
-        1 + self.rest.len()
+        N + self.rest.len()
+    }
+
+    #[inline(always)]
+    /// Returns length of the underlying slice
+    pub fn len_nonzero(&self) -> NonZeroUsize {
+        /* SAFETY: N >= 1 and addition can't overflow, because
+         * we would otherwise have more memory than LLVM can handle */
+        unsafe { NonZeroUsize::new_unchecked(N.wrapping_add(self.rest.len())) }
     }
 
     /// Returns a reference to the first element
     /// ```
     /// # use loaf::Loaf;
     /// let slice = &[0u8, 1, 2, 3, 4];
-    /// let loaf = Loaf::from_slice(slice).unwrap();
+    /// let loaf: &Loaf<_> = Loaf::from_slice(slice).unwrap();
     /// assert_eq!(*loaf.first(), 0);
     /// ```
     #[inline(always)]
@@ -45,7 +54,7 @@ impl<T, const N: usize> Loaf<T, N> {
     /// ```
     /// # use loaf::Loaf;
     /// let slice = &mut [0u8, 1, 2, 3, 4];
-    /// let loaf = Loaf::from_slice_mut(slice).unwrap();
+    /// let loaf: &mut Loaf<_> = Loaf::from_slice_mut(slice).unwrap();
     /// *loaf.first_mut() = 42;
     /// assert_eq!(*loaf.first(), 42);
     /// ```
@@ -57,7 +66,7 @@ impl<T, const N: usize> Loaf<T, N> {
     /// ```
     /// # use loaf::Loaf;
     /// let slice = &[0u8, 1, 2, 3, 4];
-    /// let loaf = Loaf::from_slice(slice).unwrap();
+    /// let loaf: &Loaf<_> = Loaf::from_slice(slice).unwrap();
     /// assert_eq!(*loaf.last(), 4);
     /// ```
     #[inline(always)]
@@ -71,7 +80,7 @@ impl<T, const N: usize> Loaf<T, N> {
     /// ```
     /// # use loaf::Loaf;
     /// let slice = &mut [0u8, 1, 2, 3, 4];
-    /// let loaf = Loaf::from_slice_mut(slice).unwrap();
+    /// let loaf: &mut Loaf<_> = Loaf::from_slice_mut(slice).unwrap();
     /// *loaf.last_mut() = 42;
     /// assert_eq!(*loaf.last(), 42);
     /// ```
@@ -97,12 +106,12 @@ impl<T, const N: usize> Loaf<T, N> {
     /// ```
     /// # use loaf::Loaf;
     /// let slice = &[0u8, 1, 2, 3, 4];
-    /// let loaf = Loaf::from_slice(slice).unwrap();
+    /// let loaf: &Loaf<_> = Loaf::from_slice(slice).unwrap();
     /// assert_eq!(loaf.loaf, [0]);
     /// assert_eq!(loaf.rest, [1, 2, 3, 4]);
     ///
     /// let slice: &[u8] = &[];
-    /// let optionloaf = Loaf::from_slice(slice);
+    /// let optionloaf: Option<&Loaf<_>> = Loaf::from_slice(slice);
     /// assert!(optionloaf.is_none());
     /// ```
     pub fn from_slice(slice: &[T]) -> Option<&Self> {
@@ -121,7 +130,7 @@ impl<T, const N: usize> Loaf<T, N> {
     /// ```
     /// # use loaf::Loaf;
     /// let slice = &mut [0u8, 1, 2, 3, 4];
-    /// let loaf = Loaf::from_slice_mut(slice).unwrap();
+    /// let loaf: &mut Loaf<_> = Loaf::from_slice_mut(slice).unwrap();
     /// loaf.loaf[0] = 42;
     /// loaf.rest[3] = 14;
     /// assert_eq!(slice, &[42u8, 1, 2, 3, 14]);
@@ -141,7 +150,7 @@ impl<T, const N: usize> Loaf<T, N> {
     /// ```
     /// # use loaf::Loaf;
     /// let slice = &[0u8, 1, 2, 3, 4];
-    /// let loaf = Loaf::from_slice(slice).unwrap();
+    /// let loaf: &Loaf<_> = Loaf::from_slice(slice).unwrap();
     /// assert_eq!(loaf.as_slice(), &[0u8, 1, 2, 3, 4]);
     /// ```
     #[inline(always)]
@@ -155,7 +164,7 @@ impl<T, const N: usize> Loaf<T, N> {
     /// ```
     /// # use loaf::Loaf;
     /// let slice = &mut [0u8, 1, 2, 3, 4];
-    /// let loaf = Loaf::from_slice_mut(slice).unwrap();
+    /// let loaf: &mut Loaf<_> = Loaf::from_slice_mut(slice).unwrap();
     /// loaf.loaf[0] = 42;
     /// loaf.rest[3] = 14;
     /// assert_eq!(loaf.as_slice(), &[42u8, 1, 2, 3, 14]);
@@ -203,7 +212,7 @@ impl<T, const N: usize> Loaf<T, N> {
     /// ```
     /// # use loaf::Loaf;
     /// let slice = &[0u8, 1, 2, 3, 4];
-    /// let loaf = Loaf::from_slice(slice).unwrap();
+    /// let loaf: &Loaf<_> = Loaf::from_slice(slice).unwrap();
     /// let (first, rest) = loaf.split_first();
     /// assert_eq!(*first, 0);
     /// assert_eq!(rest, &[1, 2, 3, 4]);
@@ -217,7 +226,7 @@ impl<T, const N: usize> Loaf<T, N> {
     /// ```
     /// # use loaf::Loaf;
     /// let slice = &mut [0u8, 1, 2, 3, 4];
-    /// let loaf = Loaf::from_slice_mut(slice).unwrap();
+    /// let loaf: &mut Loaf<_> = Loaf::from_slice_mut(slice).unwrap();
     /// let (first, rest) = loaf.split_first_mut();
     /// *first = 40;
     /// rest[0] = 41;
@@ -243,12 +252,12 @@ impl<T, const N: usize> Loaf<T, N> {
     /// ```
     /// # use loaf::Loaf;
     /// let x: Box<[u8]> = Box::new([1, 2, 3]);
-    /// let loaf = Loaf::try_from_boxed_slice(x).unwrap();
+    /// let loaf: Box<Loaf<_>> = Loaf::try_from_boxed_slice(x).unwrap();
     /// assert_eq!(loaf.loaf, [1u8]);
     /// assert_eq!(loaf.rest, [2u8, 3]);
     ///
     /// let x: Box<[u8]> = Box::new([]);
-    /// let b: Box<[u8]> = match Loaf::try_from_boxed_slice(x) {
+    /// let b: Box<[u8]> = match Loaf::<u8>::try_from_boxed_slice(x) {
     ///     Ok(_) => unreachable!(),
     ///     Err(b) => b,
     /// };
@@ -270,7 +279,7 @@ impl<T, const N: usize> Loaf<T, N> {
     /// ```
     /// # use loaf::Loaf;
     /// let x: Box<[u8]> = Box::new([1, 2, 3]);
-    /// let loaf = Loaf::try_from_boxed_slice(x).unwrap();
+    /// let loaf: Box<Loaf<_>> = Loaf::try_from_boxed_slice(x).unwrap();
     /// assert_eq!(loaf.loaf, [1u8]);
     /// assert_eq!(loaf.rest, [2u8, 3]);
     /// assert_eq!(loaf.into_boxed_slice().as_ref(), &[1u8, 2, 3]);

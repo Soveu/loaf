@@ -5,7 +5,7 @@ use crate::Loaf;
 use core::ops::{Deref, DerefMut};
 
 #[derive(Clone)]
-pub struct LoafVec<T, const N: usize> {
+pub struct LoafVec<T, const N: usize = 1usize> {
     inner: Vec<T>,
     _marker: [(); N],
 }

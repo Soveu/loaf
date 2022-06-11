@@ -22,6 +22,7 @@ impl<T, const N: usize> LoafVec<T, N> {
         };
         return Ok(s);
     }
+
     pub fn into_vec(self) -> Vec<T> {
         return self.inner;
     }

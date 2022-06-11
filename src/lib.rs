@@ -1,7 +1,4 @@
 #![no_std]
-#![feature(const_generics_defaults)]
-//#![cfg_attr(any(feature = "nightly", doc), feature(const_generics_defaults))]
-//#![cfg_attr(any(feature = "nightly", doc), allow(incomplete_features))]
 #![allow(clippy::len_without_is_empty)] // Loaf is never empty, clippy ;)
 #![allow(clippy::needless_return)]
 
@@ -46,7 +43,7 @@
 //! }
 //! ```
 //!
-//! ```compile_fail
+//! ```ignore
 //! let x: &[u8] = &[10, 42, 0, 7, 91];
 //! let loaf: &LoafN<u8, 2> = abracadabra!(slice);
 //! ```
@@ -68,8 +65,8 @@
 //!
 //! ## The Hack
 //! Rust does have a way to fiddle with fat pointer internals, but it
-//! requires untagged unions, which are only avaliable on nightly.\
-//! The hack here to create an `*mut [T]` as it was `*mut Loaf<T>` and then cast it
+//! requires `ptr_metadata` feature, which are only avaliable on nightly.
+//! The hack here is to create an `*mut [T]` as it was `*mut Loaf<T>` and then cast it.
 //!
 //! See [Loaf::from_slice] source code for more details
 //!

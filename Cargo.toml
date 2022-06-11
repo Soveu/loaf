@@ -1,6 +1,6 @@
 [package]
 name = "loaf"
-version = "0.2.0-alpha1"
+version = "0.2.0-alpha2"
 authors = ["Soveu <marx.tomasz@gmail.com>"]
 edition = "2018"
 
@@ -17,15 +17,12 @@ license = "MIT"
 [features]
 default = []
 
-# for const generics
-nightly = []
-
 # to enable Box and Vec stuff
 alloc   = []
 
-#[[test]]
-#name = "loaf_alloc"
-#required-features = ["alloc"]
+[[test]]
+name = "loaf_alloc"
+required-features = ["alloc"]
 
 [profile.test]
 # Be sure that every UB is catched

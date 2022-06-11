@@ -1,6 +1,6 @@
+use core::num::NonZeroUsize;
 use core::ops::{Deref, DerefMut};
 use core::{ptr, slice};
-use core::num::NonZeroUsize;
 
 /// Slice that guarantees to have at least one element
 /// # Usage
